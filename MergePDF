@@ -1,0 +1,42 @@
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfImportedPage;
+import com.lowagie.text.pdf.PdfReader;
+import com.lowagie.text.pdf.PdfWriter;
+
+public class MergePDF {
+
+/*
+ * Recebe array de bytes de pdfs e devolve ByteArrayOutputStream com todos os pdfs concatenados
+ */
+	public static ByteArrayOutputStream pdfConcat(List<byte[]> pdfs) throws Exception {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try {
+			Document document = new Document();
+			PdfWriter writer = PdfWriter.getInstance(document, baos);
+			document.open();
+			PdfContentByte cb = writer.getDirectContent();
+			for (byte[] bytes : pdfs) {
+				PdfReader reader = new PdfReader(bytes);
+				for (int i = 1; i <= reader.getNumberOfPages(); i++) {
+					document.newPage();
+					PdfImportedPage page = writer.getImportedPage(reader, i);
+					cb.addTemplate(page, 0, 0);
+				}
+			}
+			baos.flush();
+			document.close();
+		} catch (Exception e) {
+			throw new Exception(e);
+		}
+		return baos;
+	}
+	}
