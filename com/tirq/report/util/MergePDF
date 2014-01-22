@@ -38,4 +38,61 @@ public class MergePDF {
 		}
 		return baos;
 	}
+	
+	
+	private static ByteArrayOutputStream rotacionarLayoutPaisagem(ByteArrayOutputStream byteOutOriginal)
+			throws IOException, DocumentException {
+
+		PdfStamper stamper = null;
+		PdfReader reader = null;
+		ByteArrayInputStream byteArrayInputStream = null;
+		ByteArrayOutputStream byteOutRotacionado = new ByteArrayOutputStream();
+		try {
+
+			byteArrayInputStream = new ByteArrayInputStream(byteOutOriginal.toByteArray());
+
+			reader = new PdfReader(byteArrayInputStream);
+			int n = reader.getNumberOfPages();
+			int rot;
+			PdfDictionary pageDict;
+			for (int i = 1; i <= n; i++) {
+				rot = reader.getPageRotation(i);
+				pageDict = reader.getPageN(i);
+				pageDict.put(PdfName.ROTATE, new PdfNumber(rot + 90));
+			}
+
+			stamper = new PdfStamper(reader, byteOutRotacionado);
+
+			byteOutRotacionado.flush();
+
+		} finally {
+			try {
+				stamper.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			try {
+				reader.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			try {
+				byteArrayInputStream.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+			try {
+				byteOutRotacionado.close();
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+
+		}
+		return byteOutRotacionado;
+	}
+
+	
 	}
